@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+    <title>Flappy Bird using JS | by Pinzhi</title>
+  </head>
+  <body>
+   <h3>flappyBird Using JavaScript</h3>
+   
+   <canvas id="canvas" width="288" height="512"></canvas>
+
+   
+   <script>
+
+    
+    // create canvas 
+
+    var cvs = document.getElementById("canvas")
+    var ctx = cvs.getContext("2d");
+    var constant;
+
+
+    // create variables
+
+    var gap = 135;
+
+    // load images
+
+    var bird = new Image();
+    var bg = new Image();
+    var fg = new Image();
+    var pipeNorth = new Image();
+    var pipeSouth = new Image();
+
+    // bird position 
+
+    var bX = 10; 
+    var bY = 170; 
+    var gravity = 0.35; 
+
+    // track score
+
+    var score = 0; 
+
+    // audio files
+
+    var fly = new Audio(); 
+    var scor = new Audio(); 
+
+    fly.src = "sounds/fly.mp3"; 
+    scor.src = "sounds/score.mp3"
+
+
+    // on key down
+
+    document.addEventListener("keydown", moveUp); 
+
+    function moveUp(){
+      bY -= 25; 
+      fly.play(); 
+    }
+
+    // pipe coordinates 
+
+    var pipe = []; 
+
+    pipe[0] = {
+      x: cvs.width, 
+      y: 0
+    }; 
+
+
+
+
+    // source images 
+
+    bird.src = "https://cdn1.imggmi.com/uploads/2019/6/19/9d5edbaec9ff0fe4f8428355cc1d84e4-full.png";
+    bg.src = "https://cdn1.imggmi.com/uploads/2019/6/19/5cec98864505c24498c705f14256c1b5-full.png";
+    fg.src = "https://cdn1.imggmi.com/uploads/2019/6/19/a61ff01057a87c1e587dc94d5647da4c-full.png";
+    pipeNorth.src = "https://cdn1.imggmi.com/uploads/2019/6/19/3a5ea7efd6fbb487379b888c51070217-full.png";
+    pipeSouth.src = "https://cdn1.imggmi.com/uploads/2019/6/19/8adf0b9cc8106c87f903583a23647f8e-full.png";
+
+
+
+    // call function after images load 
+
+    var imagesLoaded = 0;
+
+    bird.onload = function() {
+      imagesLoaded++;
+      draw();
+    }
+
+    bg.onload = function() {
+      imagesLoaded++;
+      draw();
+    }
+
+    pipeNorth.onload = function() {
+      imagesLoaded++;
+      constant = pipeNorth.height + gap;
+      draw();
+    }
+
+    pipeSouth.onload = function() {
+      imagesLoaded++;
+      draw();
+    }
+
+    fg.onload = function() {
+      imagesLoaded++; 
+      draw(); 
+    }
+
+
+    // draw 
+
+    function draw() {
+      if (imagesLoaded >= 0) {
+
+        // draw background
+        ctx.drawImage(bg, 0, 0);
+
+        // draw pipes 
+
+        for (let i=0; i <pipe.length; i++){
+          
+          ctx.drawImage(pipeNorth, pipe[i].x, pipe[i].y);
+          ctx.drawImage(pipeSouth, pipe[i].x, pipe[i].y + constant);
+
+          // make pipes move to the left 
+          pipe[i].x--; 
+
+          // add new pipes to array
+          if (pipe[i].x === 2){
+            pipe.push({
+              x: cvs.width,
+              y: Math.floor(Math.random()*pipeNorth.height) - pipeNorth.height
+            }); 
+          }
+
+          // detect collision
+
+          // bird has run into pipe horizontally 
+          if ( bX + bird.width >= pipe[i].x && bX <= pipe[i].x + pipeNorth.width && 
+
+            // bird's height either crashes into upper pipe or lower pipe 
+            (bY <= pipe[i].y + pipeNorth.height || bY + bird.height >= pipe[i].y + constant) ){
+              
+              location.reload(); // reload the page 
+            }
+
+            // if bird makes it past pipe, add to score 
+            if (pipe[i].x === 2){
+              score++; 
+              scor.play(); 
+            }
+        }
+        
+
+
+        // draw ground
+        ctx.drawImage(fg, 0, cvs.height - fg.height); 
+
+        ctx.drawImage(bird, bX, bY)
+
+        // gravity on bird
+        bY += gravity; 
+
+        // score text and counter 
+        ctx.fillStyle = "#000"; 
+        ctx.font = "20px Verdana"
+        ctx.fillText("Score: "+score, 10, cvs.height-20); 
+
+
+        requestAnimationFrame(draw); 
+
+      }
+    }
+
+
+
+    
+   
+   
+   </script>
+  </body>
+</html>
